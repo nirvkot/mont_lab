@@ -1,0 +1,12 @@
+users:
+  - name: root
+    ssh_authorized_keys:
+      - {{vm_root_pubkey}}
+  - name: {{vm_user_name}}
+    gecos: student
+    groups: lab
+    sudo: ALL=(ALL) ALL
+    lock_passwd: false
+    passwd: {{vm_user_passwd_hash}}
+  - name: tmpuser
+    inactive: true

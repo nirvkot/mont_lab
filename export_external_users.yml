@@ -1,0 +1,37 @@
+---
+  - name: Map external users from csv file provided by event managers
+    hosts: workstations
+    gather_facts: no
+    vars:
+      user_group: vms_student
+    tasks:
+  
+    - name: get lab user's specific host vars as block
+      set_fact:
+        cur_host_usr_group: "{{ group_names | select('match', '^'+user_group)| list|first}}"
+      delegate_to: localhost
+  
+    - name: Set lab user's vars block
+      set_fact:
+        lab_usr_var_file_block: "{{ lookup('file', 'group_vars/'+cur_host_usr_group+'/vars.yml') }}"
+      delegate_to: localhost
+
+      # TODO: add new lines, export name and password only
+    - name: Copy users blocks to file
+      shell: |
+          printf "{{ lab_usr_var_file_block }}" >> files/user_export_3
+      delegate_to: localhost
+
+    # - name: Copy users blocks to file
+    #   blockinfile:
+    #     path: "files/user_export_3"
+    #     create: yes
+    #     block: "{{ lab_usr_var_file_block }}"
+    #     marker: ' '
+    #   delegate_to: localhost
+
+#        insertafter: EOF
+        # marker: "user"
+        # marker_begin: "/{{ group_names | select('match', '^'+user_group)| list|first}}"
+        # marker_end: "\\{{ group_names | select('match', '^'+user_group)| list|first}}"
+

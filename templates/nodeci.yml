@@ -1,0 +1,17 @@
+groups:
+  - lab
+
+users:
+  - name: root
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDL+JH3tESHNEaylUU8JVxIMKkFRi4mztjq7OWqgNXD0zWcJqTKQaMaY2JutQoma7ujTqW/y0xa7CS8o4Z3hZEatMdr+IFoTsXAvY2M3Yowm6OiFAgrVPbKcw+nOmFGW/h5hoWKq9edmyYE7Tk1jDszHt5bhNcI9uFuyBbXJykADNf95CS8wUjfDV83HR4mlKeFsEGL6Sc6d+FE+lJ/SeOqqDszZmWRNprJhsM0wj/K0uVEZfHcJON8k7o0FTu2l6MVfc5f3+HGIZncUC5CnJVl5+08bJUXgAAicXT3KQMQI3QqtrFDX3Ad6vB2JZB7EC9JhOQJ8Ksg2Keliw/l+5eV root@vj-vm0.vm.mont.lab
+    passwd: $6$MonTLab$cR4dt2pE4MObmcSbF7XSJB9MeyTiKaMRSUubD.ZlasYfR.dMUJDySRWbc7jL25G/m9lQ/Xit0zbOLB68MwjfL.
+  - name: student
+    gecos: Mr. S. Student Jr
+    groups: lab
+    sudo: ALL=(ALL) ALL
+    ssh_import_id: None
+    lock_passwd: false
+    passwd: $6$MonTLab$2gni9sZ4oVkNMK4w6cMotcnbuPwkPmf/3zJELhFMgGbwNE.R/t9py/0q2HeqPVg.GE5pYpdp4.cVPtAJGBBOL1
+  - name: tmpuser
+    inactive: true

@@ -1,0 +1,27 @@
+- set_fact:
+    var_file_path: "{{ var_dir }}/vars.yml"
+  no_log: true
+  delegate_to: localhost
+
+# - name: Variable directory
+- file:
+    path: "{{ var_dir }}"
+    state: directory
+  no_log: true
+  delegate_to: localhost
+
+# - name: Variable file
+- file: 
+    path: "{{ var_file_path }}"
+    state: touch
+    modification_time: preserve
+    access_time: preserve
+  no_log: true
+  delegate_to: localhost
+
+- name: "Var {{ var_name }} in file {{ var_file_path }}"
+  lineinfile:
+    dest: "{{ var_file_path }}"
+    line: "{{ var_name }}: {{ var_value }}"
+    state: present
+  delegate_to: localhost

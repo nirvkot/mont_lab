@@ -1,0 +1,21 @@
+- name: 'Ovirt VMs:'
+  ovirt_vm:
+      auth: "{{ auth }}"
+      comment: "{{ comment | default('Managed by ansible') }}"
+      description: "{{ comment | default('Managed by ansible') }}"
+      name: "{{ name }}"
+      template: "{{ template }}"
+      cluster: RH-Demo
+      state: "{{ state }}" #all vm settings ignored without state!!!
+      delete_protected: no
+      cloud_init_persist: true
+      cloud_init:
+        host_name: "{{ lab_fqdn }}"
+        custom_script: "{{ ci_script }}"
+        user_name: root
+        root_password: "{{ root_pass }}"
+
+  delegate_to: localhost
+  register: vm_sleeper
+  async: 1000
+  poll: 0

@@ -1,0 +1,57 @@
+core_conf_files_paths:
+  - /root/.ssh/authorized_keys
+  - /etc/motd
+
+core_yum_packages:
+  - httpd
+  - docker
+  - docker-distribution
+  # not sure bout we need these packages:
+  # - docker-client
+  # - docker-common
+  # - docker-rhel-push-plugin
+
+core_services:
+  - httpd
+  - docker
+  - docker-distribution
+
+core_web_folders:
+  - /var/www/html/containers
+  - /var/www/html/repos
+  - /var/www/html/images
+
+core_images:
+  - registry.redhat.io/ubi7/ubi
+  - registry.redhat.io/rhscl/httpd-24-rhel7
+
+core_content_dvd: 
+  iso: rhel-8.1-x86_64-dvd.iso
+  mountpoint: /dvd
+  device: /dev/sr0
+
+core_resources:
+  - name: AppStream repo
+    src: /dvd/AppStream
+    dst: /var/www/html/repos/AppStream
+    rmt_src: yes
+  - name: BaseOS repo
+    src: /dvd/BaseOS
+    dst: /var/www/html/repos/BaseOS
+    rmt_src: yes
+  - name: ansible repo
+    src: ../resources/rhel8-workshop/ansible
+    dst: /var/www/html/repos/ansible
+    rmt_src: no
+  - name: rhel7.5 local image
+    src: ../resources/rhel8-workshop/rhel7.5.tar
+    dst: /var/www/html/containers
+    rmt_src: no
+  - name: Vm local copy
+    src: ../resources/rhel8-workshop/rhel8.1-vm1.qcow2
+    dst: /var/www/html/images/rhel-8.1-x86_64-kvm.qcow2
+    rmt_src: no
+
+core_registry_auth:
+  username: 6258765|vjmurov 
+  passwd: eyJhbGciOiJSUzUxMiJ9.eyJzdWIiOiJmNzY3NDk2ODFjY2Q0Y2RjYjYzYzRiYzUzNDUwYzgwYiJ9.ibcGMOLf-BYRst0ieuECzarLAbIE9p7pDNBJaaJym283SsxX1AO5CO7LKR6sKPdOFrC5EC-YY1y1EOrmV26STSgrGA5V3RJ5gCrzJ6zUH3rmCzapB-_AZ7COwoOinlvjeXnjm7FR6pphv1YIxQcVZefJ4u5w7ucSB-fZRZuYssJ21wCFi8w7VF6PdooXuyvGHwkN4BAxCtj3ElohsWW6ebGEWzTzLKJKGCFJnOmIiLom6BiOdW-Oeyjf-eAcZEAOuYPgBgSxWlzPRKZE9BCzBsFYCqUi9aFTjdUnMtkiSVo4SfKzIFlLVY7HEDOl6AHtdyx4p_LdGD0erO79DaUH6l-b2hxCPqxfUtU-DHnApt9ogVFTzdp3nVXPQFsSrhbODl5SZfZ-9sQWyDa9jRMToGxi9hoJ4Y18jJgJxgiegMhDMpXuoN-NeRJYi5eRvxcZ8NDmDCHUY8MZ0PPKNajDWVJhbRA2FEBHsdSdylTymSnPJtjzbMWanhbLECe_kbqbcdoipcmcfpdjXejHLFU2Xg1bTo7muv6PSJ_La9mjmmWmkFwKaUMedsTVxbwW4SkHBI5r-zzUeRUp33pAEEhkSgL49VS5fvV9MYq0BdgiOOoTT6TiDORjN_q4MfLw4cQyuy0RGc9hWwtafaSBjabJ0L5FmJe7AsWLI6qcMX2XBAs

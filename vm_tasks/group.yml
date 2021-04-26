@@ -1,0 +1,12 @@
+- name: Make sure we have a group
+  group:
+    name: lab
+    state: present
+
+- name: Allow group to have passwordless sudo
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^%lab'
+    line: '%lab ALL=(ALL) NOPASSWD: ALL'
+    validate: 'visudo -cf %s'

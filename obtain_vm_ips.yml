@@ -1,0 +1,31 @@
+---
+  - name: Set hostvars
+    gather_facts: false
+    hosts: all
+    tasks:
+
+      - name: "Load ovirt connect task"
+        include_tasks: ovirt_tasks/ovirt_connect.yml
+
+      - name: 'Wait for nics'
+        ovirt_nic_info:
+            auth: "{{ shared_ovirt_auth.ansible_facts.ovirt_auth }}"
+            vm: "{{ inventory_hostname }}"
+        register: nic_data
+        until: nic_data.ovirt_nics[0].reported_devices[0] is defined
+        retries: 150
+        delay: 10
+        delegate_to: localhost
+
+      - name: Ovirt api 20 seconds delay.
+        pause:
+         seconds: 20
+
+      - name: Load ovirt disconnect task
+        include_tasks: ovirt_tasks/ovirt_disconnect.yml
+
+      - name: 'Vm nics in hostvars'
+        include: tasks/inv_vars.yml
+          var_dir="host_vars/{{ inventory_hostname }}"
+          var_name="ansible_host"
+          var_value="{{ nic_data.ovirt_nics[0].reported_devices[0].ips[0].address }}"

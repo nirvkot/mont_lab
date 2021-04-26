@@ -1,0 +1,14 @@
+---
+  - name: Configure and check core
+    # gather_facts: min
+    hosts: core
+    tasks:
+
+    - name: Check/wait core to be reachable over ssh
+      wait_for_connection:
+       sleep: 1
+       timeout: 5
+
+    - name: Show current ansible user
+      debug:
+        var: ansible_user_id

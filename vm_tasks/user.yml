@@ -1,0 +1,8 @@
+- name: Lab User
+  user:
+    name: "{{ lab_user_name }}"
+    password: "{{ lab_user_passwd }}"
+    group: "{{ lab_user_grp }}"
+    generate_ssh_key: "{{ lab_user_generate_ssh }}"
+    ssh_key_bits: 2048
+    ssh_key_file: .ssh/id_rsa

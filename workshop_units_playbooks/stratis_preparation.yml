@@ -1,0 +1,35 @@
+---
+  - name: Attach required disks for Stratis unit
+    hosts: nodes, !active_labs
+    gather_facts: no
+    vars_files:
+      - ../vars/node2_disks.yml
+    vars:
+      storage_domain: DATA-iSCSI-DC1
+    tasks:
+
+    - include: ../ovirt_tasks/ovirt_connect.yml
+
+    - name: Setup node2's disks
+      ovirt_disk:
+        auth: "{{ shared_ovirt_auth.ansible_facts.ovirt_auth }}"
+        name: "{{ disk.name }}_{{ inventory_hostname }}"
+        vm_name: "{{ inventory_hostname }}"
+        size: "{{ disk.size }}"
+        format: "{{ disk.format }}"
+        interface: "{{ disk.interface }}"
+        storage_domain: "{{ storage_domain }}"
+      loop: "{{ disks_arr }}"
+      loop_control:
+        loop_var: disk
+      when: "'node2' in inventory_hostname"
+      delegate_to: localhost
+      register: vm_sleeper
+      async: 1000
+      poll: 0
+
+    - name: Give ovirt api 40 seconds to kick in.
+      pause:
+       seconds: 40
+
+    - include: ../ovirt_tasks/ovirt_disconnect.yml

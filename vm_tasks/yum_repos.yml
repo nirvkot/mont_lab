@@ -1,0 +1,4 @@
+- name: RHEL 8 repos
+  copy:
+    src: files/rh8_vm.repos
+    dest: /etc/yum.repos.d/rhel8.repo

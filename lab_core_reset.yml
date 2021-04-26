@@ -1,0 +1,45 @@
+---
+- name: Reset core
+  gather_facts: false
+  hosts: core
+  vars_files: vars/core_vars.yml
+  tasks:
+
+  - name: Reset core file settings
+    file:
+      path: "{{ file_path }}"
+      state: absent
+    loop: "{{ core_conf_files_paths }}"
+    loop_control:
+      loop_var: file_path
+
+  - name: Remove core packages
+    yum:
+      name: "{{ core_yum_packages }}"
+      state: absent
+
+  - name: Remove student
+    user:
+      name: student
+      state: absent
+      remove: yes
+  
+  - name: Reset root's pass to lab default
+    user:
+      name: root
+      password: "{{ '123qweASD'|password_hash('sha512', 'MonTLab') }}"
+
+  - name: Clean up content folders
+    file:
+      path: "{{ dir_path }}"
+      state: absent
+    loop: "{{ core_web_folders }}"
+    loop_control:
+      loop_var: dir_path
+
+# - name: Only authorized key for current ansible user present on core
+#   authorized_key:
+#     user: root
+#     state: present
+#     exclusive: yes
+#     key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"

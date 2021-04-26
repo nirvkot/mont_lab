@@ -1,0 +1,43 @@
+---
+- name: Map external users from csv file provided by event managers
+  hosts: localhost
+  gather_facts: no
+  vars:
+    user_group: vms_student
+  tasks:
+
+  - name: Read users from CSV file and return a dictionary
+    read_csv:
+      path: files/lab_users_real.csv
+      key: number
+    register: external_users
+    delegate_to: localhost
+
+  - name: dump ext users
+    debug:
+      var: external_users
+
+  - name: test external users
+    debug:
+      msg: "unum: {{ user_num }} user: {{ external_users.dict[user_num]['name'] }}"
+    loop: "{{ external_users.dict|list }}"
+    loop_control:
+      loop_var: user_num
+
+  - name: append user name to groupvars
+    include: tasks/inv_vars.yml
+      var_dir="group_vars/{{ user_group }}{{ user_num }}"
+      var_name="external_user"
+      var_value="{{ external_users.dict[user_num]['name'] }}"
+    loop: "{{ external_users.dict|list }}"
+    loop_control:
+      loop_var: user_num
+
+  - name: generate unique passwords for lab users
+    include: tasks/inv_vars.yml
+      var_dir="group_vars/{{ user_group_name }}"
+      var_name="password"
+      var_value="{{ lookup('password', '/dev/null length=15 chars=ascii_letters') }}"
+    loop: "{{ groups| select('match', '^'+user_group)| list }}"
+    loop_control:
+      loop_var: user_group_name

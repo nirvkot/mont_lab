@@ -1,0 +1,40 @@
+---
+- name: Deploy ovirt
+  gather_facts: false
+  hosts: all, !core, !active_labs
+#TODO: Why can't we use root_pass var rot receive roots_passwd_hs, why it hangs?
+  vars:
+    user_name: student
+    user_pass: r3dh4t1!
+    root_pass: r3dh4t1!
+    users_passwd_hs: "{{ 'r3dh4t1!'|password_hash('sha512', 'MonTLab') }}"
+    roots_passwd_hs: "{{ 'r3dh4t1!'|password_hash('sha512', 'MonTLab') }}"
+  tasks:
+
+    - name: Load root pubkey task
+      include: tasks/ansible_root_pubkey.yml
+
+    - name: Load ci template script
+      include: tasks/ci_script.yml
+        vm_root_pubkey="{{ root_pubkey }}"
+        vm_user_name="{{ user_name }}"
+        vm_root_passwd_hash="{{ roots_passwd_hs }}"
+        vm_user_passwd_hash="{{ users_passwd_hs }}"
+
+    - name: "Load ovirt connect task"
+      include_tasks: ovirt_tasks/ovirt_connect.yml
+
+    - include: ovirt_tasks/ovirt_vm.yml
+        auth="{{ shared_ovirt_auth.ansible_facts.ovirt_auth }}"
+        name="{{ inventory_hostname }}"
+        template="{{ hostvars[inventory_hostname]['template'] }}"
+        state="running"
+        comment="Student {{ hostvars[inventory_hostname]['owner_number'] }} {{ hostvars[inventory_hostname].type }}"
+        ci_script="{{ vm_ci_script }}"
+
+    - name: Give ovirt api 20 seconds to kick in.
+      pause:
+       seconds: 20
+
+    - name: Load ovirt disconnect task
+      include_tasks: ovirt_tasks/ovirt_disconnect.yml

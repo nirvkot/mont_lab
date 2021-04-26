@@ -1,0 +1,3 @@
+- name: Ci script
+  set_fact:
+    vm_ci_script: "{{ lookup('template', 'templates/vm_ci.j2') }}"

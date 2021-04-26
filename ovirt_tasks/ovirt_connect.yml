@@ -1,0 +1,10 @@
+- name: Establish session to oVirt/RHV
+  ovirt_auth:
+    url: https://rhvm.srv.mont.lab/ovirt-engine/api
+    username: vjmurov@RH-IDM
+    password: FarewellM0nTY
+    insecure: true
+  register: shared_ovirt_auth
+  delegate_to: localhost
+  check_mode: no
+  run_once: yes

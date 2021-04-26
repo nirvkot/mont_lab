@@ -1,0 +1,20 @@
+---
+  - name: Obtain vm ips
+    gather_facts: false
+    hosts: all
+    tasks:
+
+      - name: "Get nics data for {{ vm_hostname }}"
+        ovirt_nic_info:
+            auth: "{{ shared_ovirt_auth.ansible_facts.ovirt_auth }}"
+            vm: "{{ vm_hostname }}"
+            fetch_nested: yes
+            nested_attributes:
+              # - name
+              - ips
+        register: nic_data
+        delegate_to: localhost
+
+      - name: Nic data for {{ vm_hostname }}
+        debug:
+          var: nic_data
