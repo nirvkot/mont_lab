@@ -1,0 +1,22 @@
+---
+  - name: Undeploy ovirt
+    gather_facts: false
+    hosts: lab_vms, !active_labs
+    tasks:
+  
+      - name: "Load ovirt connect task"
+        include_tasks: ovirt_tasks/ovirt_connect.yml
+  
+      - include: ovirt_tasks/ovirt_vm.yml
+          auth="{{ shared_ovirt_auth.ansible_facts.ovirt_auth }}"
+          name="{{ inventory_hostname }}"
+          state="absent"
+          ci_script=None
+          root_pass=None
+
+      - name: Give ovirt api 20 seconds to kick in.
+        pause:
+         seconds: 20
+
+      - name: Load ovirt disconnect task
+        include_tasks: ovirt_tasks/ovirt_disconnect.yml

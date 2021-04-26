@@ -1,0 +1,16 @@
+# see https://docs.ansible.com/ansible/latest/user_guide/playbooks_async.html
+- name: 'Ovirt VM states and data'
+  debug:
+    msg:
+      - "Vm name: {{ name }}"
+      - "Desired state: {{ state }}"
+      - "Comment: {{ comment }}"
+      - "Template: {{ template }}"
+      - "CI script: {{ ci_script }}"
+
+# - name: Global hostvars test for
+#   debug:
+#     var: hostvars[inventory_hostname]
+#   when: inventory_hostname == "vj-lab-stud1-ws.vm.mont.lab"
+
+  delegate_to: localhost

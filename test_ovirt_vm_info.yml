@@ -1,0 +1,25 @@
+  - name: Test vm info
+    gather_facts: no
+    hosts: all
+    tasks:
+
+    - name: "Load ovirt connect task"
+      include_tasks: ovirt_tasks/ovirt_connect.yml
+
+    - name: "Gather vm info"
+      ovirt_vm_info:
+        auth: "{{ shared_ovirt_auth.ansible_facts.ovirt_auth }}"
+        fetch_nested: true
+        # nested_attributes: vms
+      register: vm_info
+      run_once: yes
+      delegate_to: localhost
+
+    - debug:
+        msg: 
+        - "{{ vm_info }}"   
+      run_once: yes
+      delegate_to: localhost
+
+    - name: Load ovirt disconnect task
+      include_tasks: ovirt_tasks/ovirt_disconnect.yml

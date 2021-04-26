@@ -1,0 +1,52 @@
+---
+  - name: Create lab users on idm
+    hosts: workstations
+    gather_facts: no
+    vars_files:
+      - vars/lab_user_vars.yml
+    vars:
+      ipa_user_passwd_expire_days: 6
+      seconds_in_day: 86400
+      ipa_user_default_password: 123qweASD
+# TODO: use password plugin to generate random passwords for users https://docs.ansible.com/ansible/latest/plugins/lookup/password.html
+    tasks:
+
+    - setup:
+        gather_subset: min
+
+    - include: tasks/ipa_user.yml
+        ipa_user_name="{{ hostvars[inventory_hostname]['external_user'] }}"
+        ipa_user_givenname="Lab"
+        ipa_desired_user_state="present"
+        ipa_user_surname="User{{ owner_number }}"
+        ipa_user_passwd="{{ hostvars[inventory_hostname]['password'] }}"
+        ipa_user_passwd_expiration_date="{{ '%Y%m%d%H%M%S' | strftime(ansible_date_time.epoch|int + seconds_in_day * ipa_user_passwd_expire_days) }}"
+
+  - name: Map lab idm users to ovirt and give them vm permissions
+    hosts: all, !core
+    gather_facts: no
+    vars:
+      ovirt_user_domain: RH-IDM
+    tasks:
+
+    - include: ovirt_tasks/ovirt_connect.yml
+
+    - name: Ovirt user
+      ovirt_user:
+        auth: "{{ shared_ovirt_auth.ansible_facts.ovirt_auth }}"
+        name: "{{ hostvars[inventory_hostname]['external_user'] }}"
+        domain: "{{ ovirt_user_domain }}"      
+      delegate_to: localhost
+      when: "'workstations' in group_names"
+
+    - name: Ovirt permissions
+      ovirt_permission:
+        auth: "{{ shared_ovirt_auth.ansible_facts.ovirt_auth }}"
+        user_name: "{{ hostvars[inventory_hostname]['external_user'] }}"
+        authz_name: "{{ ovirt_user_domain }}"
+        object_type: vm
+        object_name: "{{ inventory_hostname }}"
+        role: UserRole
+      delegate_to: localhost
+
+    - include_tasks: ovirt_tasks/ovirt_disconnect.yml

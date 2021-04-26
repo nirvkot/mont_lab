@@ -1,0 +1,26 @@
+---
+  - name: Vms packages
+    hosts: lab_vms, !active_labs
+    gather_facts: no
+    vars_files:
+      - "vars/vm_vars.yml"
+    tasks:
+
+    - name: Load yum repos task
+      include: vm_tasks/yum_repos.yml
+
+    - name: Disable subscription manager(yum module) to supress subsctipion manager identity error messages
+      ini_file:
+        path: "{{ item.path }}"
+        section: main
+        option: enabled
+        value: 0
+      with_items:
+          - { path: '/etc/yum/pluginconf.d/product-id.conf' }
+          - { path: '/etc/yum/pluginconf.d/subscription-manager.conf' }
+
+    - name: Load yum packages task
+      include: vm_tasks/yum_packages.yml
+       package_desired_state=present
+       group_in_package_lists="{{ group_names|intersect(package_lists|list)|first }}"
+       package_list="{{ package_lists[group_in_package_lists] }}"

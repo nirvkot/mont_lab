@@ -1,0 +1,5 @@
+- name: Yum packages
+  package:
+    name: "{{ item }}"
+    state: "{{ package_desired_state }}"
+  loop: "{{ package_list }}"

@@ -1,0 +1,16 @@
+- name: Ipa user in desired state
+  ipa_user:
+    uid: "{{ ipa_user_name }}"
+    givenname: "{{ ipa_user_givenname }}"
+    state: "{{ ipa_desired_user_state|default('present') }}"
+    sn: "{{ ipa_user_surname }}"
+    password: "{{ ipa_user_passwd }}"
+    sshpubkey: "{{ ipa_user_sshpubkey|default(omit) }}"
+    ipa_host: "{{ ipa_host }}"
+    ipa_user: "{{ ipaclient_principal }}"
+    ipa_pass: "{{ ipaclient_password }}"
+    krbpasswordexpiration: "{{ ipa_user_passwd_expiration_date|default('%Y%m%d%H%M%S' | strftime ) }}"
+    update_password: on_create
+    validate_certs: no
+  register: new_ipa_user_data
+  delegate_to: localhost

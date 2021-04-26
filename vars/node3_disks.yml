@@ -1,0 +1,9 @@
+disks_arr:
+  - name: vda
+    size: 256Mib
+    format: cow
+    interface: virtio
+  - name: vdb
+    size: 8256Mib
+    format: cow
+    interface: virtio

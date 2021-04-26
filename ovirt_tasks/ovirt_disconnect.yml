@@ -1,0 +1,7 @@
+- name: Revoke the SSO token (always needs to be done for ovirth_auth)
+  ovirt_auth:
+    state: absent
+    ovirt_auth: "{{ shared_ovirt_auth.ansible_facts.ovirt_auth }}"
+  delegate_to: localhost
+  check_mode: no
+  run_once: yes

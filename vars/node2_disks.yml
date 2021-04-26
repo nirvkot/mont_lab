@@ -1,0 +1,17 @@
+disks_arr:
+  - name: vda
+    size: 2Gib
+    format: cow
+    interface: virtio
+  - name: vdb
+    size: 2Gib
+    format: cow
+    interface: virtio
+  - name: sdb
+    size: 1Gib
+    format: cow
+    interface: virtio_scsi
+  - name: sdc
+    size: 1536Mib
+    format: cow
+    interface: virtio_scsi

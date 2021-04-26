@@ -1,0 +1,111 @@
+---
+  - name: Configure and check core
+    gather_facts: false
+    hosts: core
+    vars_files: vars/core_vars.yml
+    tasks:
+
+    - name: "Lab workstations roots pubkeys in core's authorized keys"
+      authorized_key: 
+        user: root
+        key: "{{ hostvars[item]['root_pubkey'] }}"
+      loop: "{{ groups['workstations'] | list }}"
+
+    - name: "Install yum packages"
+      yum:
+        name: "{{ core_yum_packages }}"
+        state: present
+        
+    - name: Start services
+      service:
+        name: "{{ service_name }}"
+        state: started
+        enabled: yes
+      loop: "{{ core_services }}"
+      loop_control:
+        loop_var: service_name
+
+    - name: Create web content folders
+      file:
+        path: "{{ dir_path }}"
+        state: directory
+      loop: "{{ core_web_folders }}"
+      loop_control:
+        loop_var: dir_path
+
+    - name: Install pip
+      easy_install:
+        name: pip
+        state: latest
+
+    - name: Install docker SDK from pip
+      pip:
+        name: docker
+        extra_args: --ignore-installed
+
+    - name: Log into rhel registry and force re-authorization
+      docker_login:
+        registry: registry.redhat.io
+        username: "{{ core_registry_auth['username'] }}"
+        password: "{{ core_registry_auth['passwd'] }}"
+        reauthorize: yes
+      register: docker_auth
+
+    - name: Pull rhel registry images and save them to containers content folder
+      docker_image:
+        name: "{{ img_name }}"
+        source: pull
+        archive_path: "{{ core_web_folders|select('match','.*containers$')|list|first }}/{{ img_name|basename }}.tar"
+      loop: "{{ core_images }}"
+      loop_control:
+        loop_var: img_name
+
+    - name: Log out of DockerHub
+      docker_login:
+          state: absent
+
+    - name: Ovirt milestone
+      debug:
+        msg: "Will mount iso on core dvd"
+
+    - include: ovirt_tasks/ovirt_connect.yml
+
+    - name: Check ovirt auth
+      debug:
+        msg: "{{ inventory_hostname }}"
+      delegate_to: localhost
+
+    - name: "'Insert' VMs CD"
+      ovirt_vm:
+        auth: "{{ shared_ovirt_auth['ansible_facts']['ovirt_auth'] }}"
+        name: "{{ inventory_hostname }}"
+        cd_iso: "{{ core_content_dvd.iso }}"
+        state: running # all vm settings ignored without state!!!
+      delegate_to: localhost
+
+    - include: ovirt_tasks/ovirt_disconnect.yml
+
+    - name: Create mount point
+      file:
+        name: "{{ core_content_dvd.mountpoint }}"
+        state: directory
+
+    - name: Mount DVD 
+      mount:
+        path: "{{ core_content_dvd.mountpoint }}"        
+        src: "{{ core_content_dvd.device }}"
+        fstype: iso9660
+        # opts: ro
+        state: mounted
+
+    - name: Prepare core resources
+      copy:
+        src: "{{ resource.src }}"
+        dest: "{{ resource.dst }}"
+        remote_src: "{{ resource.rmt_src|default(omit) }}"
+      loop: "{{ core_resources }}"
+      loop_control:
+        loop_var: resource
+      register: vm_sleeper
+
+    # - name: "Test qcow image is available"

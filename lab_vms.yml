@@ -1,0 +1,65 @@
+---
+  - name: Vms general config
+    hosts: lab_vms, core
+    gather_facts: no
+    tasks:
+
+      # we need core in play's hosts only to get it's current hostname precisely. TODO: think of better approach
+     - name: Core hostname
+       set_fact:
+         core_host_name: "{{ ansible_play_hosts_all| select('match', '^.*core.*$')|list| first }}"
+       run_once: yes
+
+     - name: Wait for Vms to become reachable over ssh
+       wait_for_connection:
+        sleep: 1
+
+     - name: Current student group
+       set_fact:
+        cur_stud_group: "{{ group_names | list | select('match', '^vms_student[0-9]+$')|list| first }}"
+       when: inventory_hostname != core_host_name
+
+     - name: Hostfile vms lines
+       lineinfile:
+         dest: "/etc/hosts"
+         line: "{{ hostvars[item]['ansible_host'] }} {{ hostvars[item]['lab_fqdn'] }} {{ hostvars[item]['short_fqdn'] }}"
+         state: present
+       loop: "{{ groups[cur_stud_group] | list }}"
+       when: inventory_hostname != core_host_name
+
+     - name: Hostfile core line (remove old entry add new)
+       lineinfile:
+         dest: "/etc/hosts"
+         state: "{{ item.state }}"
+         regexp: "{{ item.regexp|default(omit) }}"
+         line: "{{ item.line|default(omit) }}"
+       with_items:
+         - { regexp: "{{ hostvars[core_host_name]['lab_fqdn'] }}", state: absent }
+         - { line: "{{ hostvars[core_host_name]['ansible_host'] }} {{ hostvars[core_host_name]['lab_fqdn'] }} {{ hostvars[core_host_name]['short_fqdn'] }}", state: present }
+       when: inventory_hostname != core_host_name
+
+     - name: Modify resov.conf
+       lineinfile:
+         dest: "/etc/resolv.conf"
+         state: "{{ item.state }}"
+         regexp: "{{ item.regexp }}"
+         line: "{{ item.line|default(omit) }}"
+       with_items:
+         - { regexp: '^search.*srv\.mont\.lab', line: 'search edu.mont.lab', state: present }
+         - { regexp: '^nameserver', state: absent }
+       when: inventory_hostname != core_host_name
+
+     - name: Disable cloud init
+       service:
+          name: cloud-init
+          state: stopped
+          enabled: no
+       when: inventory_hostname != core_host_name
+       ignore_errors: yes
+
+     - name: Remove cloud init
+       yum:
+        name: cloud-init
+        state: absent
+       when: inventory_hostname != core_host_name
+       ignore_errors: yes

@@ -1,0 +1,31 @@
+---
+- name: Init ovirt deploy environment
+  gather_facts: false
+  hosts: all
+  vars:
+    target_hostname: "tower-1.da-demo.test"
+  tasks:
+
+  - name: "Load ovirt connect task"
+    include_tasks: ovirt_tasks/ovirt_connect.yml
+
+  - set_fact:
+      vm_hostname: "{{ target_hostname }}"
+
+  - debug: 
+      var: vm_hostname
+
+# you can only pass value in playbook include vm_hostname="content-hub.vm.inno.lab"
+- import_playbook: ovirt_tasks/view_vms_ips.yml
+
+- name: Close ovirt deploy environment
+  gather_facts: false
+  hosts: all
+  tasks:
+
+  - name: Ovirt api wait 20 seconds.
+    pause:
+      seconds: 1
+
+  - name: Load ovirt disconnect task
+    include_tasks: ovirt_tasks/ovirt_disconnect.yml

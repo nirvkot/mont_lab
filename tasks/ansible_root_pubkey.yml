@@ -1,0 +1,8 @@
+- openssh_keypair:
+    path: /root/.ssh/id_rsa
+  delegate_to: localhost
+  run_once: yes
+
+- name: Root's public key in variable
+  set_fact:
+    root_pubkey: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"

@@ -1,0 +1,15 @@
+[RHEL8]
+name=Red Hat Enterprise Linux 8 BaseOS
+baseurl=http://core.example.com/repos/BaseOS
+enabled=1
+gpgcheck=0
+[RHEL8-APPSTREAM]
+name=Red Hat Enterprise Linux 8 AppStream
+baseurl=http://core.example.com/repos/AppStream
+enabled=1
+gpgcheck=0
+[RHEL8-Ansible]
+name=Red Hat Enterprise Linux 8 Ansible
+baseurl=http://core.example.com/repos/ansible/
+enabled=1
+gpgcheck=0

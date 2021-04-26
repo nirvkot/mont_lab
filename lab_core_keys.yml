@@ -1,0 +1,12 @@
+---
+  - name: Configure core authorized keys
+    gather_facts: false
+    hosts: core
+    vars_files: vars/core_vars.yml
+    tasks:
+
+    - name: "Lab workstations roots pubkeys in core's authorized keys"
+      authorized_key: 
+        user: root
+        key: "{{ hostvars[item]['root_pubkey'] }}"
+      loop: "{{ groups['workstations'] | list }}"

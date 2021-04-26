@@ -1,0 +1,17 @@
+- name: 'Ovirt VMs:'
+  ovirt_vm:
+      auth: "{{ auth }}"
+      comment: "{{ comment | default('Managed by ansible') }}"
+      description: "{{ comment | default('Managed by ansible') }}"
+      name: "{{ name }}"
+      template: "{{ template }}"
+      cluster: RH-Demo
+      state: "{{ state }}"
+      delete_protected: no
+      cloud_init_persist: true
+      cloud_init:
+        host_name: "{{ name }}"
+        user_name: root
+        root_password: 123qweASD
+        custom_script: "{{ ci_script }}"
+  delegate_to: localhost

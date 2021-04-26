@@ -1,0 +1,10 @@
+- name: Establish session to oVirt/RHV
+  ovirt_auth:
+    url: https://rhvmFQDN/ovirt-engine/api
+    username: rhvuser@RH-IDM
+    password: rhvpassword
+    insecure: true
+  register: shared_ovirt_auth
+  delegate_to: localhost
+  check_mode: no
+  run_once: yes

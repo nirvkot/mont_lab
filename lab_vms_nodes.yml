@@ -1,0 +1,10 @@
+---
+  - name: Nodes specific config
+    gather_facts: false
+    hosts: nodes
+    tasks:
+
+    - name: "Ws root pubkey in node's authorized keys"
+      authorized_key: 
+        user: root
+        key: '{{ root_pubkey }}'
